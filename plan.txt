@@ -17,11 +17,13 @@ ItemType {
 }
 
 Drone {
+	id
 	Position
 	Map<ItemType, ItemCount> - what is currently loaded on the drone
 }
 
 Warehouse {
+	id
 	Position
 	Map<ItemType, ItemCount>
 }
