@@ -11,11 +11,12 @@ public class CustomerOrder {
 
     private final Position position;
 
-    private final List<ItemType> contents = new ArrayList<>();
+    private final List<ItemType> contents;
 
-    public CustomerOrder(int id, Position position) {
+    public CustomerOrder(int id, Position position, List<ItemType> contents) {
         this.id = id;
         this.position = position;
+        this.contents = contents;
     }
 
     public int getId() {
