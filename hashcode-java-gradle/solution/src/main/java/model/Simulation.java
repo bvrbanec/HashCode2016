@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Simulation {
 
@@ -44,6 +45,23 @@ public class Simulation {
     private void simulate() {
         while (simulationStep < simulationDeadline && !dispatchOrders.isEmpty()) {
             populateFreeDronesFromCurrentStep();
+
+            final int maxDrones = drones.size() / warehouses.size();
+
+            for (final Warehouse warehouse : warehouses) {
+                final List<Drone> freeDrones = inactiveDrones.stream()
+                        .sorted((d1, d2) ->
+                                        Double.compare(warehouse.getPosition().distanceTo(d1.getPosition()),
+                                                warehouse.getPosition().distanceTo(d2.getPosition()))
+                        )
+                        .collect(Collectors.toList());
+                final int dronesToTake = Math.min(freeDrones.size(), maxDrones);
+                for(int droneNumber = 0; droneNumber < dronesToTake; ++droneNumber) {
+                    final Drone drone = freeDrones.get(droneNumber);
+                    // TODO get dispatch order
+                    final DispatchOrder order = null;
+                }
+            }
 
             ++simulationStep;
         }
