@@ -1,9 +1,6 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Simulation {
@@ -29,6 +26,8 @@ public class Simulation {
 
     private Map<Integer, List<Drone>> droneFreeMap = new HashMap<>();
 
+    private final List<String> output = new LinkedList<>();
+
     public Simulation(Area area, int simulationDeadline, int droneMaximumLoad, List<Drone> drones, List<Warehouse> warehouses, List<CustomerOrder> orders) {
         this.area = area;
         this.simulationDeadline = simulationDeadline;
@@ -41,6 +40,9 @@ public class Simulation {
     public void run() {
         setUp();
         simulate();
+
+        System.out.println(output.size());
+        output.stream().forEach(System.out::println);
     }
 
     private void simulate() {
@@ -75,8 +77,8 @@ public class Simulation {
     }
 
     private void dispatch(Drone drone, DispatchOrder order) {
-        System.out.printf("%d L %d %d %d%n", drone.getId(), order.getItemType().getId(), order.getOrigin().getId(), 1);
-        System.out.printf("%d D %d %d %d%n", drone.getId(), order.getItemType().getId(), order.getDestination().getId(), 1);
+        output.add(String.format("%d L %d %d %d", drone.getId(), order.getItemType().getId(), order.getOrigin().getId(), 1));
+        output.add(String.format("%d D %d %d %d", drone.getId(), order.getItemType().getId(), order.getDestination().getId(), 1));
 
         final int loadStepDuration = (int) Math.ceil(drone.getPosition().distanceTo(order.getOrigin().getPosition())) + 1;
         final int dispatchStepDuration = (int) Math.ceil(drone.getPosition().distanceTo(order.getDestination().getPosition())) + 1;
