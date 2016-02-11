@@ -77,8 +77,8 @@ public class Simulation {
     }
 
     private void dispatch(Drone drone, DispatchOrder order) {
-        output.add(String.format("%d L %d %d %d", drone.getId(), order.getItemType().getId(), order.getOrigin().getId(), 1));
-        output.add(String.format("%d D %d %d %d", drone.getId(), order.getItemType().getId(), order.getDestination().getId(), 1));
+        output.add(String.format("%d L %d %d %d", drone.getId(), order.getOrigin().getId(), order.getItemType().getId(), 1));
+        output.add(String.format("%d D %d %d %d", drone.getId(), order.getDestination().getId(), order.getItemType().getId(), 1));
 
         final int loadStepDuration = (int) Math.ceil(drone.getPosition().distanceTo(order.getOrigin().getPosition())) + 1;
         final int dispatchStepDuration = (int) Math.ceil(drone.getPosition().distanceTo(order.getDestination().getPosition())) + 1;
