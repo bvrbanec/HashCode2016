@@ -44,8 +44,7 @@ public class Simulation {
     }
 
     private void simulate() {
-        // TODO check dispatch orders empty properly
-        while (simulationStep < simulationDeadline && !dispatchOrders.isEmpty()) {
+        while (simulationStep < simulationDeadline && !dispatchOrders.values().stream().allMatch(i -> i.isEmpty())) {
             populateFreeDronesFromCurrentStep();
 
             final int maxDrones = Math.min(1, drones.size() / warehouses.size());
