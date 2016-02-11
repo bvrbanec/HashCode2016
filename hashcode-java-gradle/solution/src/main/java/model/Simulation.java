@@ -49,7 +49,7 @@ public class Simulation {
         while (simulationStep < simulationDeadline && !dispatchOrders.values().stream().allMatch(i -> i.isEmpty())) {
             populateFreeDronesFromCurrentStep();
 
-            final int maxDrones = Math.min(1, drones.size() / warehouses.size());
+            final int maxDrones = Math.max(1, drones.size() / warehouses.size());
 
             for (final Warehouse warehouse : warehouses) {
                 final List<DispatchOrder> warehouseOrders = dispatchOrders.getOrDefault(warehouse, new ArrayList<>());
@@ -91,6 +91,7 @@ public class Simulation {
 
         final List<Drone> freeDronesForStep = droneFreeMap.getOrDefault(freeUntil, new ArrayList<>());
         freeDronesForStep.add(drone);
+        inactiveDrones.remove(drone);
         droneFreeMap.put(freeUntil, freeDronesForStep);
     }
 
