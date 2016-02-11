@@ -14,6 +14,7 @@ public class Simulation {
 
     private int simulationStep = 0;
 
+    // TODO take into account
     private final int droneMaximumLoad;
 
     private final List<Drone> drones;
@@ -51,7 +52,7 @@ public class Simulation {
 
             for (final Warehouse warehouse : warehouses) {
                 final List<DispatchOrder> warehouseOrders = dispatchOrders.getOrDefault(warehouse, new ArrayList<>());
-                if(warehouseOrders.isEmpty()) {
+                if (warehouseOrders.isEmpty()) {
                     continue;
                 }
                 final List<Drone> freeDrones = inactiveDrones.stream()
@@ -61,12 +62,13 @@ public class Simulation {
                         )
                         .collect(Collectors.toList());
                 final int dronesToTake = Math.min(Math.min(freeDrones.size(), maxDrones), warehouseOrders.size());
-                for(int droneNumber = 0; droneNumber < dronesToTake; ++droneNumber) {
+                for (int droneNumber = 0; droneNumber < dronesToTake; ++droneNumber) {
                     final Drone drone = freeDrones.get(droneNumber);
                     final DispatchOrder order = warehouseOrders.get(0);
                     warehouseOrders.remove(order);
                     dispatch(drone, order);
                 }
+                dispatchOrders.put(warehouse, warehouseOrders);
             }
 
             ++simulationStep;
@@ -74,9 +76,14 @@ public class Simulation {
     }
 
     private void dispatch(Drone drone, DispatchOrder order) {
-        // TODO load
-        // TODO dispatch
-        // TODO put into free map
+        System.out.printf("%d L %d %d %d%n", drone.getId(), order.getItemType().getId(), order.getOrigin().getId(), 1);
+        System.out.printf("%d D %d %d %d%n", drone.getId(), order.getItemType().getId(), order.getDestination(), 1);
+        // TODO
+        final int stepDuration = 0;
+        final int freeUntil = simulationStep + stepDuration;
+        final List<Drone> freeDronesForStep = droneFreeMap.getOrDefault(freeUntil, new ArrayList<>());
+        freeDronesForStep.add(drone);
+        droneFreeMap.put(freeUntil, freeDronesForStep);
     }
 
     private void populateFreeDronesFromCurrentStep() {
@@ -97,6 +104,7 @@ public class Simulation {
 
                 final List<DispatchOrder> warehouseOrders = dispatchOrders.getOrDefault(warehouse, new ArrayList<>());
                 warehouseOrders.add(dispatchOrder);
+                dispatchOrders.put(warehouse, warehouseOrders);
 
                 if (warehouseAmount > 1) {
                     warehouse.getStorage().put(itemType, warehouseAmount - 1);
