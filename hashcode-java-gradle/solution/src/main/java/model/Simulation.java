@@ -11,6 +11,8 @@ public class Simulation {
 
     private final int simulationDeadline;
 
+    private int simulationStep = 0;
+
     private final int droneMaximumLoad;
 
     private final List<Drone> drones;
@@ -35,13 +37,21 @@ public class Simulation {
     }
 
     public void run() {
-
         setUp();
-
         simulate();
     }
 
     private void simulate() {
+        while (simulationStep < simulationDeadline && !dispatchOrders.isEmpty()) {
+            populateFreeDronesFromCurrentStep();
+
+            ++simulationStep;
+        }
+    }
+
+    private void populateFreeDronesFromCurrentStep() {
+        final List<Drone> freeDrones = droneFreeMap.get(simulationStep);
+        inactiveDrones.addAll(freeDrones);
     }
 
     private void setUp() {
