@@ -1,7 +1,4 @@
-import model.CustomerOrder;
-import model.ItemType;
-import model.Position;
-import model.Warehouse;
+import model.*;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -19,7 +16,7 @@ public class Main {
 
         BufferedReader br = new BufferedReader(new FileReader("busy_day.in"));
 
-        // line 1
+        // Simulation information
         String line = br.readLine();
         String[] split = line.split(" ");
 
@@ -30,13 +27,9 @@ public class Main {
         maxLoad = new Integer(split[4]);
 
 
-        // line 2
-        int numOfProdTypes;
-        line = br.readLine();
-        numOfProdTypes = new Integer(line);
+        // Product types
+        int numOfProdTypes = new Integer(br.readLine());
 
-
-        // line 3
         List<ItemType> itemTypes = new ArrayList<>();
         line = br.readLine();
         split = line.split(" ");
@@ -44,11 +37,10 @@ public class Main {
             itemTypes.add(new ItemType(new Integer(split[i]), i));
         }
 
-        // line 4
+
+        // Warehouses
         int numOfWarehouses = new Integer(br.readLine());
 
-
-        // line 5 - numOfWerehouses * 2
         List<Warehouse> warehouses = new ArrayList<>();
         for(int i = 0; i < numOfWarehouses; i++) {
             // read position
@@ -69,7 +61,7 @@ public class Main {
             warehouses.add(warehouse);
         }
 
-        // orders
+        // Orders
         int numOfOrders = new Integer(br.readLine());
         List<CustomerOrder> orders = new ArrayList<>();
         for(int i = 0; i < numOfOrders; i++) {
@@ -77,7 +69,7 @@ public class Main {
             split = line.split(" ");
             Position orderPosition = new Position(new Integer(split[0]), new Integer(split[1]));
 
-            //irrelevant
+            //irrelevant - number of items
             line = br.readLine();
 
             // order items
@@ -93,7 +85,16 @@ public class Main {
 
         }
 
-        System.out.print("end");
+        // Call simulation
+        Area area = new Area(rows, cols);
+
+        List<Drone> drones = new ArrayList<>();
+        for(int i = 0; i < numOfDrones; i++) {
+            drones.add(new Drone(i, new Position(0, 0)));
+        }
+
+        Simulation simulation = new Simulation(area, deadline, maxLoad, drones, warehouses, orders);
+        simulation.run();
 
 
     }
