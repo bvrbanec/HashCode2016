@@ -76,9 +76,12 @@ public class Simulation {
 
     private void dispatch(Drone drone, DispatchOrder order) {
         System.out.printf("%d L %d %d %d%n", drone.getId(), order.getItemType().getId(), order.getOrigin().getId(), 1);
-        System.out.printf("%d D %d %d %d%n", drone.getId(), order.getItemType().getId(), order.getDestination(), 1);
-        // TODO
-        final int stepDuration = 0;
+        System.out.printf("%d D %d %d %d%n", drone.getId(), order.getItemType().getId(), order.getDestination().getId(), 1);
+
+        final int loadStepDuration = (int) Math.ceil(drone.getPosition().distanceTo(order.getOrigin().getPosition())) + 1;
+        final int dispatchStepDuration = (int) Math.ceil(drone.getPosition().distanceTo(order.getDestination().getPosition())) + 1;
+
+        final int stepDuration = loadStepDuration + dispatchStepDuration;
         final int freeUntil = simulationStep + stepDuration;
         final List<Drone> freeDronesForStep = droneFreeMap.getOrDefault(freeUntil, new ArrayList<>());
         freeDronesForStep.add(drone);
@@ -98,7 +101,7 @@ public class Simulation {
                 final Warehouse warehouse = findNearestWarehouseForItemType(customer.getPosition(), itemType);
                 final int warehouseAmount = warehouse.getStorage().get(itemType);
                 final DispatchOrder dispatchOrder = new DispatchOrder(
-                        warehouse, itemType, 1, customer.getId()
+                        warehouse, itemType, 1, customer
                 );
 
                 final List<DispatchOrder> warehouseOrders = dispatchOrders.getOrDefault(warehouse, new ArrayList<>());

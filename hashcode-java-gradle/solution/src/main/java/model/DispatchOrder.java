@@ -8,10 +8,10 @@ public class DispatchOrder {
 
     private final int amount;
 
-    private final int destination;
+    private final CustomerOrder destination;
 
 
-    public DispatchOrder(Warehouse origin, ItemType itemType, int amount, int destination) {
+    public DispatchOrder(Warehouse origin, ItemType itemType, int amount, CustomerOrder destination) {
         this.origin = origin;
         this.itemType = itemType;
         this.amount = amount;
@@ -30,7 +30,7 @@ public class DispatchOrder {
         return amount;
     }
 
-    public int getDestination() {
+    public CustomerOrder getDestination() {
         return destination;
     }
 }
