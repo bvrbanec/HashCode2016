@@ -89,7 +89,7 @@ public class Simulation {
     }
 
     private void populateFreeDronesFromCurrentStep() {
-        final List<Drone> freeDrones = droneFreeMap.get(simulationStep);
+        final List<Drone> freeDrones = droneFreeMap.getOrDefault(simulationStep, new ArrayList<>());
         inactiveDrones.addAll(freeDrones);
     }
 
