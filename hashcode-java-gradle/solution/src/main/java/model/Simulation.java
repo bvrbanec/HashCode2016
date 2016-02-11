@@ -58,7 +58,7 @@ public class Simulation {
                 }
                 final List<Drone> freeDrones = inactiveDrones.stream()
                         .sorted((d1, d2) ->
-                                        Double.compare(warehouse.getPosition().distanceTo(d1.getPosition()),
+                                        -Double.compare(warehouse.getPosition().distanceTo(d1.getPosition()),
                                                 warehouse.getPosition().distanceTo(d2.getPosition()))
                         )
                         .collect(Collectors.toList());
@@ -128,7 +128,7 @@ public class Simulation {
         return warehouses.stream()
                 .filter(w -> w.getStorage().containsKey(itemType) && w.getStorage().get(itemType) > 0)
                 .sorted(
-                        (w1, w2) -> Double.compare(position.distanceTo(w1.getPosition()), position.distanceTo(w2.getPosition()))
+                        (w1, w2) -> -Double.compare(position.distanceTo(w1.getPosition()), position.distanceTo(w2.getPosition()))
                 )
                 .findFirst()
                 .get();
