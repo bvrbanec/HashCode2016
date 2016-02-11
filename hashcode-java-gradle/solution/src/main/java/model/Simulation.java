@@ -19,6 +19,8 @@ public class Simulation {
 
     private final List<CustomerOrder> orders;
 
+    private final List<DispatchOrder> dispatchOrders = new ArrayList<>();
+
     private List<Drone> inactiveDrones = new ArrayList<>();
 
     private Map<Integer, List<Drone>> droneFreeMap = new HashMap<>();
@@ -33,7 +35,41 @@ public class Simulation {
     }
 
     public void run() {
+
+        setUp();
+
+        simulate();
+    }
+
+    private void simulate() {
+    }
+
+    private void setUp() {
+        inactiveDrones.addAll(drones);
+
+        for (final CustomerOrder customer : orders) {
+            for (final ItemType itemType : customer.getContents().keySet()) {
+                int count = customer.getContents().get(itemType);
+                while (count > 0) {
+                    final Warehouse warehouse = findNearestWarehouseForItemType(customer.getPosition(), itemType.getId());
+                    final int warehouseAmount = warehouse.getStorage().get(itemType);
+                    final int reservedAmount = Math.min(warehouseAmount, count);
+                    final DispatchOrder dispatchOrder = new DispatchOrder(
+                            warehouse, itemType, reservedAmount, customer.getId()
+                    );
+
+                    dispatchOrders.add(dispatchOrder);
+
+                    count -= reservedAmount;
+                    warehouse.getStorage().put(itemType, warehouseAmount - reservedAmount);
+                }
+            }
+        }
+    }
+
+    private Warehouse findNearestWarehouseForItemType(Position position, int id) {
         // TODO
+        return warehouses.get(0);
     }
 
 }
