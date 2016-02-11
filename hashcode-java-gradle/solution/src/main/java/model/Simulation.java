@@ -58,20 +58,19 @@ public class Simulation {
         inactiveDrones.addAll(drones);
 
         for (final CustomerOrder customer : orders) {
-            for (final ItemType itemType : customer.getContents().keySet()) {
-                int count = customer.getContents().get(itemType);
-                while (count > 0) {
-                    final Warehouse warehouse = findNearestWarehouseForItemType(customer.getPosition(), itemType);
-                    final int warehouseAmount = warehouse.getStorage().get(itemType);
-                    final int reservedAmount = Math.min(warehouseAmount, count);
-                    final DispatchOrder dispatchOrder = new DispatchOrder(
-                            warehouse, itemType, reservedAmount, customer.getId()
-                    );
+            for (final ItemType itemType : customer.getContents()) {
+                final Warehouse warehouse = findNearestWarehouseForItemType(customer.getPosition(), itemType);
+                final int warehouseAmount = warehouse.getStorage().get(itemType);
+                final DispatchOrder dispatchOrder = new DispatchOrder(
+                        warehouse, itemType, 1, customer.getId()
+                );
 
-                    dispatchOrders.add(dispatchOrder);
+                dispatchOrders.add(dispatchOrder);
 
-                    count -= reservedAmount;
-                    warehouse.getStorage().put(itemType, warehouseAmount - reservedAmount);
+                if (warehouseAmount > 1) {
+                    warehouse.getStorage().put(itemType, warehouseAmount - 1);
+                } else {
+                    warehouse.getStorage().remove(itemType);
                 }
             }
         }
@@ -79,7 +78,7 @@ public class Simulation {
 
     private Warehouse findNearestWarehouseForItemType(Position position, final ItemType itemType) {
         return warehouses.stream()
-                .filter(w -> w.getStorage().containsKey(itemType))
+                .filter(w -> w.getStorage().containsKey(itemType) && w.getStorage().get(itemType) > 0)
                 .sorted(
                         (w1, w2) -> Double.compare(position.distanceTo(w1.getPosition()), position.distanceTo(w2.getPosition()))
                 )

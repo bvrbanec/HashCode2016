@@ -1,6 +1,8 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CustomerOrder {
@@ -9,7 +11,7 @@ public class CustomerOrder {
 
     private final Position position;
 
-    private final Map<ItemType, Integer> contents = new HashMap<>();
+    private final List<ItemType> contents = new ArrayList<>();
 
     public CustomerOrder(int id, Position position) {
         this.id = id;
@@ -24,7 +26,7 @@ public class CustomerOrder {
         return position;
     }
 
-    public Map<ItemType, Integer> getContents() {
+    public List<ItemType> getContents() {
         return contents;
     }
 }
