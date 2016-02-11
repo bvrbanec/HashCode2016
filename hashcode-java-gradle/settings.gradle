@@ -1,0 +1,3 @@
+rootProject.name = 'hashcode'
+include 'solution'
+
