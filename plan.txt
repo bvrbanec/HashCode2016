@@ -1,0 +1,94 @@
+Classes
+=======
+
+Position {
+	row
+	column
+}
+
+Area {
+	rows
+	columns
+}
+
+ItemType {
+	int - id
+	int - weight
+}
+
+Drone {
+	Position
+	Map<ItemType, ItemCount> - what is currently loaded on the drone
+}
+
+Warehouse {
+	Position
+	Map<ItemType, ItemCount>
+}
+
+CustomerOrder {
+	id
+	Position
+	Map<ItemType, ItemCount>
+}
+
+Simulation {
+	Area
+	simulationDeadline
+	droneMaximumLoad
+	List<Drone> - a list of all drones
+	List<Drone> - inactive drones
+	Map<Int, List<Drone>> - drone free map (simulation step, list of drones that become free)
+}
+
+Set up phase
+============
+
+Customers make requests from nearest warehouses for the items they need
+
+* squashCustomerOrders()
+
+for(customer: Customers) {
+	for(itemType: customer.itemTypes) {
+		while(itemType.count > 0) {
+			warehouse = findNearestWarehouseForItemType(itemType)
+			amount = min(warehouse.itemType.count, itemType.count)
+			order = makeOrder(warehouse, itemType, amount)
+			itemType.count -= amount
+			warehouse.itemType.count -= amount
+		}
+	}
+}
+
+simulation.inactiveDrones = simulation.drones
+
+Simulation phase
+================
+
+dispatch(simulation, drone, job, warehouse) {
+	drone.id LOAD warehouse.position, job.type, job.count
+	drone.id DELIVER job.position job.type job.count
+	simulation.droneFreeMap.put(simulation.step + distance + 1, drone)
+}
+
+
+while(t < T && !orders.empty()) {
+
+	populateFreeDronesFromCurrentStep()
+
+	for(warehouse: warehouses) {
+		nearestDrones = sortByDistance(freeDroneQueue)
+		freeDrones = takeDrones(nearestDrones, DRONE_NUMBER)
+		for(drone: freeDrones) {
+			job = warehouse.jobs.take()
+			dispatch(drone, job)
+		}
+		if(warehouse.empty) {
+			warehouses.remove(warehouse)
+		}
+	}
+
+	idleUntakenDrones()
+
+}
+
