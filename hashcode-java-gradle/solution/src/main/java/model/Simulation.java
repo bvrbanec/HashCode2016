@@ -77,14 +77,18 @@ public class Simulation {
     }
 
     private void dispatch(Drone drone, DispatchOrder order) {
-        output.add(String.format("%d L %d %d %d", drone.getId(), order.getOrigin().getId(), order.getItemType().getId(), 1));
-        output.add(String.format("%d D %d %d %d", drone.getId(), order.getDestination().getId(), order.getItemType().getId(), 1));
-
         final int loadStepDuration = (int) Math.ceil(drone.getPosition().distanceTo(order.getOrigin().getPosition())) + 1;
         final int dispatchStepDuration = (int) Math.ceil(drone.getPosition().distanceTo(order.getDestination().getPosition())) + 1;
 
         final int stepDuration = loadStepDuration + dispatchStepDuration;
         final int freeUntil = simulationStep + stepDuration;
+        if(freeUntil > simulationDeadline) {
+            return;
+        }
+
+        output.add(String.format("%d L %d %d %d", drone.getId(), order.getOrigin().getId(), order.getItemType().getId(), 1));
+        output.add(String.format("%d D %d %d %d", drone.getId(), order.getDestination().getId(), order.getItemType().getId(), 1));
+
         final List<Drone> freeDronesForStep = droneFreeMap.getOrDefault(freeUntil, new ArrayList<>());
         freeDronesForStep.add(drone);
         droneFreeMap.put(freeUntil, freeDronesForStep);
