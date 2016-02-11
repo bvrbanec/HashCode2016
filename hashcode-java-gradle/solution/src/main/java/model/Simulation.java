@@ -51,7 +51,7 @@ public class Simulation {
             for (final ItemType itemType : customer.getContents().keySet()) {
                 int count = customer.getContents().get(itemType);
                 while (count > 0) {
-                    final Warehouse warehouse = findNearestWarehouseForItemType(customer.getPosition(), itemType.getId());
+                    final Warehouse warehouse = findNearestWarehouseForItemType(customer.getPosition(), itemType);
                     final int warehouseAmount = warehouse.getStorage().get(itemType);
                     final int reservedAmount = Math.min(warehouseAmount, count);
                     final DispatchOrder dispatchOrder = new DispatchOrder(
@@ -67,9 +67,14 @@ public class Simulation {
         }
     }
 
-    private Warehouse findNearestWarehouseForItemType(Position position, int id) {
-        // TODO
-        return warehouses.get(0);
+    private Warehouse findNearestWarehouseForItemType(Position position, final ItemType itemType) {
+        return warehouses.stream()
+                .filter(w -> w.getStorage().containsKey(itemType))
+                .sorted(
+                        (w1, w2) -> Double.compare(position.distanceTo(w1.getPosition()), position.distanceTo(w2.getPosition()))
+                )
+                .findFirst()
+                .get();
     }
 
 }

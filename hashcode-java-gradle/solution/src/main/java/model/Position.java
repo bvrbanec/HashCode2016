@@ -19,4 +19,8 @@ public class Position {
         return column;
     }
 
+    public double distanceTo(final Position that) {
+        return Math.sqrt(Math.pow(row - that.row, 2) + Math.pow(column - that.column, 2));
+    }
+
 }
