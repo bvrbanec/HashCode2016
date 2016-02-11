@@ -53,9 +53,9 @@ Customers make requests from nearest warehouses for the items they need
 for(customer: Customers) {
 	for(itemType: customer.itemTypes) {
 		while(itemType.count > 0) {
-			warehouse = findNearestWarehouseForItemType(itemType)
+			warehouse = findNearestWarehouseForItemType(customer.position, itemType)
 			amount = min(warehouse.itemType.count, itemType.count)
-			order = makeOrder(warehouse, itemType, amount)
+			order = makeOrder(warehouse, itemType, amount, customer)
 			itemType.count -= amount
 			warehouse.itemType.count -= amount
 		}
