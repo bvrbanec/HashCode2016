@@ -22,7 +22,7 @@ public class Simulation {
 
     private final List<CustomerOrder> orders;
 
-    private final List<DispatchOrder> dispatchOrders = new ArrayList<>();
+    private final Map<Warehouse, List<DispatchOrder>> dispatchOrders = new HashMap<>();
 
     private List<Drone> inactiveDrones = new ArrayList<>();
 
@@ -43,28 +43,40 @@ public class Simulation {
     }
 
     private void simulate() {
+        // TODO check dispatch orders empty properly
         while (simulationStep < simulationDeadline && !dispatchOrders.isEmpty()) {
             populateFreeDronesFromCurrentStep();
 
-            final int maxDrones = drones.size() / warehouses.size();
+            final int maxDrones = Math.min(1, drones.size() / warehouses.size());
 
             for (final Warehouse warehouse : warehouses) {
+                final List<DispatchOrder> warehouseOrders = dispatchOrders.getOrDefault(warehouse, new ArrayList<>());
+                if(warehouseOrders.isEmpty()) {
+                    continue;
+                }
                 final List<Drone> freeDrones = inactiveDrones.stream()
                         .sorted((d1, d2) ->
                                         Double.compare(warehouse.getPosition().distanceTo(d1.getPosition()),
                                                 warehouse.getPosition().distanceTo(d2.getPosition()))
                         )
                         .collect(Collectors.toList());
-                final int dronesToTake = Math.min(freeDrones.size(), maxDrones);
+                final int dronesToTake = Math.min(Math.min(freeDrones.size(), maxDrones), warehouseOrders.size());
                 for(int droneNumber = 0; droneNumber < dronesToTake; ++droneNumber) {
                     final Drone drone = freeDrones.get(droneNumber);
-                    // TODO get dispatch order
-                    final DispatchOrder order = null;
+                    final DispatchOrder order = warehouseOrders.get(0);
+                    warehouseOrders.remove(order);
+                    dispatch(drone, order);
                 }
             }
 
             ++simulationStep;
         }
+    }
+
+    private void dispatch(Drone drone, DispatchOrder order) {
+        // TODO load
+        // TODO dispatch
+        // TODO put into free map
     }
 
     private void populateFreeDronesFromCurrentStep() {
@@ -83,7 +95,8 @@ public class Simulation {
                         warehouse, itemType, 1, customer.getId()
                 );
 
-                dispatchOrders.add(dispatchOrder);
+                final List<DispatchOrder> warehouseOrders = dispatchOrders.getOrDefault(warehouse, new ArrayList<>());
+                warehouseOrders.add(dispatchOrder);
 
                 if (warehouseAmount > 1) {
                     warehouse.getStorage().put(itemType, warehouseAmount - 1);
