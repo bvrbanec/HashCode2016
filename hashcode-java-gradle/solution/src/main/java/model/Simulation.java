@@ -26,6 +26,8 @@ public class Simulation {
 
     private Map<Integer, List<Drone>> droneFreeMap = new HashMap<>();
 
+    private Map<Warehouse, Double> warehouseWeights = new HashMap<>();
+
     private final List<String> output = new LinkedList<>();
 
     public Simulation(Area area, int simulationDeadline, int droneMaximumLoad, List<Drone> drones, List<Warehouse> warehouses, List<CustomerOrder> orders) {
@@ -39,30 +41,40 @@ public class Simulation {
 
     public void run() {
         setUp();
+        calculateWarehouseWeights();
         simulate();
 
         System.out.println(output.size());
         output.stream().forEach(System.out::println);
     }
 
+    private void calculateWarehouseWeights() {
+        final int totalDispatchOrders = dispatchOrders.values().stream().mapToInt(i -> i.size()).sum();
+        for (final Warehouse w : dispatchOrders.keySet()) {
+            final List<DispatchOrder> orders = dispatchOrders.get(w);
+            final double weight = (double) orders.size() / totalDispatchOrders;
+            warehouseWeights.put(w, weight);
+        }
+        warehouses.sort((w1, w2) -> -Double.compare(warehouseWeights.get(w1), warehouseWeights.get(w2)));
+    }
+
     private void simulate() {
         while (simulationStep < simulationDeadline && !dispatchOrders.values().stream().allMatch(i -> i.isEmpty())) {
             populateFreeDronesFromCurrentStep();
 
-            final int maxDrones = Math.max(1, drones.size() / warehouses.size());
-
             for (final Warehouse warehouse : warehouses) {
+                final double weight = warehouseWeights.get(warehouse);
                 final List<DispatchOrder> warehouseOrders = dispatchOrders.getOrDefault(warehouse, new ArrayList<>());
                 if (warehouseOrders.isEmpty()) {
                     continue;
                 }
                 final List<Drone> freeDrones = inactiveDrones.stream()
                         .sorted((d1, d2) ->
-                                        Double.compare(warehouse.getPosition().distanceTo(d1.getPosition()),
+                                        -Double.compare(warehouse.getPosition().distanceTo(d1.getPosition()),
                                                 warehouse.getPosition().distanceTo(d2.getPosition()))
                         )
                         .collect(Collectors.toList());
-                final int dronesToTake = Math.min(Math.min(freeDrones.size(), maxDrones), warehouseOrders.size());
+                final int dronesToTake = Math.min(Math.min(freeDrones.size(), (int) (weight * drones.size())), warehouseOrders.size());
                 for (int droneNumber = 0; droneNumber < dronesToTake; ++droneNumber) {
                     final Drone drone = freeDrones.get(droneNumber);
                     final DispatchOrder order = warehouseOrders.get(0);
@@ -82,7 +94,7 @@ public class Simulation {
 
         final int stepDuration = loadStepDuration + dispatchStepDuration;
         final int freeUntil = simulationStep + stepDuration;
-        if(freeUntil > simulationDeadline) {
+        if (freeUntil > simulationDeadline) {
             return;
         }
 
@@ -128,7 +140,7 @@ public class Simulation {
         return warehouses.stream()
                 .filter(w -> w.getStorage().containsKey(itemType) && w.getStorage().get(itemType) > 0)
                 .sorted(
-                        (w1, w2) -> Double.compare(position.distanceTo(w1.getPosition()), position.distanceTo(w2.getPosition()))
+                        (w1, w2) -> -Double.compare(position.distanceTo(w1.getPosition()), position.distanceTo(w2.getPosition()))
                 )
                 .findFirst()
                 .get();
